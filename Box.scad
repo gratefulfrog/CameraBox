@@ -16,8 +16,19 @@ outerZ=innerZ+2*wallThickness;
 
 innerExtensionY = 20; // to cut off the end of the outer box
 
+// hok measurements
 hookSpacingY  = 50;
 hookLength    = 4.76;
+BottomWidth      = 1.58 ;
+FirstVertical    = 2.39;
+bottomWingWidth  = 1.58;
+_2ndVertical     = 0.78;
+_3rdVertical     = _2ndVertical+0.01;
+TopWidth         = 3.18;
+
+hookSupportX = BottomWidth  + 2*bottomWingWidth;
+hookSupportY = hookSpacingY + hookLength;
+hookSupportZ = wallThickness;
 
 sphereD=wallThickness*2;
 
@@ -48,13 +59,7 @@ module importedHooks(){
   }
 }  
 module measuredHook(){
-  BottomWidth      = 1.58 ;
-  FirstVertical    = 2.39;
-  bottomWingWidth  = 1.58;
-  _2ndVertical     = 0.78;
-  _3rdVertical     = _2ndVertical+0.01;
-  TopWidth         = 3.18;
-  epsilon= 2;  // to ensure ancoring in the base!
+  epsilon= wallThickness;  // to ensure ancoring in the base!
   points = [[0,-epsilon],
             [BottomWidth,-epsilon],
             [BottomWidth,FirstVertical],
@@ -70,10 +75,12 @@ module measuredHook(){
     linear_extrude(height = hookLength)
       polygon(points,convexity = 1);
 }
-module twoMeasuredHooks(){
+module twoMeasuredHooks(withSupport=true){
   measuredHook();
   translate([0,hookSpacingY,0])
     measuredHook();
+  translate([-hookSupportX/2.,0,-hookSupportZ])
+    cube([hookSupportX,hookSupportY,hookSupportZ]);
 }
 module sp2(){
   translate([sphereD/2.,0,sphereD/2.]){
@@ -101,7 +108,7 @@ module roundedBox(){
     }
   }
 }
-module grid(gWidth=heatPortD+5,lineSpacing=2,lineWidth=1){
+module grid(gWidth=heatPortD+5,lineSpacing=2,lineWidth=0.5){
   translate([-gWidth/2.,0,0])
   for (i=[0:lineSpacing+lineWidth:gWidth]){
     translate([i,0,0]){
@@ -109,23 +116,54 @@ module grid(gWidth=heatPortD+5,lineSpacing=2,lineWidth=1){
     }
   }
 }
-module gridCutter(){
-  linear_extrude(height=50)
+module crissCross(){
+  rotate([0,0,90])
+        grid();
+  grid();
+}
+module gridCutter(h){
+  linear_extrude(height=h)
     difference(){
       circle(d=heatPortD);
-      rotate([0,0,90])
-        grid();
-      grid();
+      crissCross();
     }
   }
-module boxWithGridAndHooks(){
+module circCutter(h){
+  littleD=4;
+  linear_extrude(height=h)
+    intersection(){   
+      circle(d=heatPortD);
+      translate([-heatPortD/2.,-heatPortD/2.,0])
+        for (i=[0:littleD+1:heatPortD+littleD+1])
+          translate([0,i,0])
+            for (j=[0:littleD+1:heatPortD+littleD+1])
+              translate([j,0,0])
+                circle(d=littleD);
+    }    
+}
+module discCutter(h){
+  linear_extrude(height=h)
+      circle(d=heatPortD);
+}
+module boxWithGridAndHooks(circs){
+  extrudeH = 5;
   difference(){  
     roundedBox();
-    translate([4.5,40,-20])
-      gridCutter();
+    translate([4.5,40,-extrudeH/2.])
+      if (circs== "d")
+        #discCutter(extrudeH);
+      else if (circs== "c")
+        #circCutter(extrudeH);
+      else
+        #gridCutter(extrudeH);
   }
-  twoMeasuredHooks();
+  #twoMeasuredHooks(extrudeH);
 }
-
-boxWithGridAndHooks();
-  
+// square grid
+// boxWithGridAndHooks(false);
+// circular grid - better chance to print
+// args are:
+// "c" -> get circular grid cut
+// "d" -> get a big disc cut
+// anything else -> get a rectangular grid cut
+boxWithGridAndHooks("x");
