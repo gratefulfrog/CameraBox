@@ -166,4 +166,4 @@ module boxWithGridAndHooks(circs){
 // "c" -> get circular grid cut
 // "d" -> get a big disc cut
 // anything else -> get a rectangular grid cut
-boxWithGridAndHooks("x");
+//boxWithGridAndHooks("x");
