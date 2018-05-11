@@ -1,5 +1,11 @@
 $fn=100;
 
+/* unused exact camera dimensions, excluding the lens
+width : 35mm
+length: 60mm
+height: 18mm
+*/
+
 wallThickness = 2;
 innerX=37;
 innerY=62;
@@ -10,11 +16,13 @@ outerZ=innerZ+2*wallThickness;
 
 innerExtensionY = 20; // to cut off the end of the outer box
 
-
 hookSpacingY  = 50;
 hookLength    = 4.76;
 
 sphereD=wallThickness*2;
+
+heatSinkRFactor =  0.75;
+heatPortD= innerX*heatSinkRFactor;
 
 module rawBox(){
 boxTranslateY = -(outerY-(hookSpacingY+hookLength))/2.;
@@ -25,7 +33,6 @@ translate([-outerX/2.,boxTranslateY,-outerZ])
       cube([innerX,innerY+innerExtensionY,innerZ]);
   }
 }
-
 module importedHooks(){
   mountMaxY=54.8;
   mountMinY=2.6;
@@ -40,7 +47,6 @@ module importedHooks(){
       cube([cX,cY,cZ]);
   }
 }  
-
 module measuredHook(){
   BottomWidth      = 1.58 ;
   FirstVertical    = 2.39;
@@ -69,7 +75,6 @@ module twoMeasuredHooks(){
   translate([0,hookSpacingY,0])
     measuredHook();
 }
-
 module sp2(){
   translate([sphereD/2.,0,sphereD/2.]){
     sphere(d=sphereD);
@@ -96,14 +101,6 @@ module roundedBox(){
     }
   }
 }
-//#importedHooks();
-//rawBox();
-
-heatSinkRFactor =  0.75;
-heatPortD= innerX*heatSinkRFactor;
-
-//cylinder(d=heatPortD, h=10);
-
 module grid(gWidth=heatPortD+5,lineSpacing=2,lineWidth=1){
   translate([-gWidth/2.,0,0])
   for (i=[0:lineSpacing+lineWidth:gWidth]){
@@ -121,10 +118,14 @@ module gridCutter(){
       grid();
     }
   }
-difference(){  
-  roundedBox();
-  translate([4.5,40,-20])
-    gridCutter();
+module boxWithGridAndHooks(){
+  difference(){  
+    roundedBox();
+    translate([4.5,40,-20])
+      gridCutter();
+  }
+  twoMeasuredHooks();
 }
-twoMeasuredHooks();
+
+boxWithGridAndHooks();
   
