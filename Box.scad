@@ -49,7 +49,9 @@ hookSupportZ = wallThickness;
 sphereD=wallThickness*2;
 
 heatSinkRFactor =  0.75;
-heatPortD= innerX*heatSinkRFactor;
+//heatPortD= innerX*heatSinkRFactor;
+
+heatPortD= innerX*heatSinkRFactor - 2*hookLength;
 
 module measuredHook(){
   epsilon= wallThickness;  // to ensure ancoring in the base!
@@ -72,8 +74,10 @@ module twoMeasuredHooks(withSupport=true){
   measuredHook();
   translate([0,hookSpacingY,0])
     measuredHook();
-  translate([-hookSupportX/2.,0,-hookSupportZ])
-    cube([hookSupportX,hookSupportY,hookSupportZ]);
+  if (withSupport){
+    translate([-hookSupportX/2.,0,-hookSupportZ])
+      cube([hookSupportX,hookSupportY,hookSupportZ]);
+  }
 }
 module sp2(){
   translate([sphereD/2.,0,sphereD/2.]){
@@ -150,7 +154,7 @@ module boxWithGridAndHooks(circs){
       else
         #gridCutter(extrudeH);
   }
-  #twoMeasuredHooks(extrudeH);
+  #twoMeasuredHooks(false );
 }
 // uncomment boxWithGridAndHooks("d");  to generate a one piece box with hooks as per
 // arguments: 

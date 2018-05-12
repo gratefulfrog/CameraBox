@@ -62,15 +62,15 @@ module top(){
     translate([0,0,hooksOffsetZ])
       rotate([-90,0,0])
         translate([0,-hookSupportY,0])
-          twoMeasuredHooks();
+          twoMeasuredHooks(false);
   }
 }
 module discC(h=wallThickness*4.){
   discOffsetX = (innerX/2.-(1.5+4*wallThickness))/2.;
-  translate([discOffsetX,h/2.,hooksOffsetZ+heatPortD/2.])
-  rotate([90,0,0])
-  linear_extrude(height=h)
-      circle(d=heatPortD);
+  translate([discOffsetX,h/2.,hookLength+hooksOffsetZ+heatPortD/2.])
+    rotate([90,0,0])
+      linear_extrude(height=h)
+        circle(d=heatPortD);
 }
 module doBox(part="x"){
   rotate([90,0,0]){
@@ -84,4 +84,5 @@ module doBox(part="x"){
  * "b" : generate only the bottom
  * anything else : generate both top and bottom
  */
-doBox("x");
+doBox("t");
+echo(heatPortD);
