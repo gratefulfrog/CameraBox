@@ -1,12 +1,27 @@
-$fn = 100;
+/* 2PartBox.scad
+ * 2018 05 12
+ * gratefulfrog.org
+ * generates a box for a video camera that mounts to the Freewing Stores pod
+ * This version creates a 2 part box that slides together.
+ * Usage:
+ * at the very end of the file, this line generates the box parts
+ *    doBox("x");
+ * the arguments are explained just above that line. 
+ * hit F5 to get a view, or F6 to build the object.
+ * ATENTION: this file includes the file Box.scad, so if you get unepexected results, like long
+ * delays in building, then check that there are no top level build commands uncommented in
+ * Box.scad.
+ */
 
 /* unused exact camera dimensions, excluding the lens
 width : 35mm
 length: 60mm
 height: 18mm
 */
+
 include <Box.scad>
 
+$fn = 100;
 
 wallThickness = 2;
 innerX=37;
@@ -57,7 +72,16 @@ module discC(h=wallThickness*4.){
   linear_extrude(height=h)
       circle(d=heatPortD);
 }
-rotate([90,0,0]){
-  bottom();
-  top();
-}
+module doBox(part="x"){
+  rotate([90,0,0]){
+    if (part != "t") bottom();
+    if (part != "b") top();
+    }
+  }
+/* The following line will generate the 2 part box parts depending on 
+ * the arguments:
+ * "t" : generate only the tope
+ * "b" : generate only the bottom
+ * anything else : generate both top and bottom
+ */
+doBox("x");

@@ -1,10 +1,26 @@
-$fn=100;
+/* Box.scad
+ * 2018 05 12
+ * gratefulfrog.org
+ * generates a box for a video camera that mounts to the Freewing Stores pod
+ * Usage:
+ * at the very end of the file, uncomment the line:
+ * //boxWithGridAndHooks("d");
+ * then hit F5 to get a view, or F6 to build the object.
+ * It will take quite some time, during which OpenSCAD will bu unresponsive, that is normal
+ * so just be patient.
+ * ATENTION: this file is included in 2PartBox.scad so be sure to leave the last line
+ * commented out if you intend to use 2PartBox.scad
+ */
+
+
 
 /* unused exact camera dimensions, excluding the lens
 width : 35mm
 length: 60mm
 height: 18mm
 */
+
+$fn=100;
 
 wallThickness = 2;
 innerX=37;
@@ -35,29 +51,6 @@ sphereD=wallThickness*2;
 heatSinkRFactor =  0.75;
 heatPortD= innerX*heatSinkRFactor;
 
-module rawBox(){
-boxTranslateY = -(outerY-(hookSpacingY+hookLength))/2.;
-translate([-outerX/2.,boxTranslateY,-outerZ])
-  difference(){
-    cube([outerX,outerY,outerZ]);
-    translate([wallThickness,wallThickness-innerExtensionY,wallThickness])
-      cube([innerX,innerY+innerExtensionY,innerZ]);
-  }
-}
-module importedHooks(){
-  mountMaxY=54.8;
-  mountMinY=2.6;
-  mountMinZ=0;
-  epsilon=0.002;
-  cY=mountMaxY + 12;
-  cX=10;
-  cZ=10;
-  difference(){
-    import("Missile_Rail_Mount _repaired.stl", convexity=10);
-    translate([-cX/2.,-mountMinY-epsilon,-cZ+epsilon])
-      cube([cX,cY,cZ]);
-  }
-}  
 module measuredHook(){
   epsilon= wallThickness;  // to ensure ancoring in the base!
   points = [[0,-epsilon],
@@ -159,11 +152,9 @@ module boxWithGridAndHooks(circs){
   }
   #twoMeasuredHooks(extrudeH);
 }
-// square grid
-// boxWithGridAndHooks(false);
-// circular grid - better chance to print
-// args are:
+// uncomment boxWithGridAndHooks("d");  to generate a one piece box with hooks as per
+// arguments: 
 // "c" -> get circular grid cut
 // "d" -> get a big disc cut
 // anything else -> get a rectangular grid cut
-//boxWithGridAndHooks("x");
+//boxWithGridAndHooks("d");
