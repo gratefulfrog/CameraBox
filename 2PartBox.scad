@@ -69,7 +69,6 @@ module top(){
       linear_extrude(height=topZ,convexity=5)
         import("Box Grooved 01 inverted.dxf",layer="base",convexity=10);
       discC();
-      //topTrimmer();
     }
     translate([0,0,hooksOffsetZ])
       rotate([-90,0,0])
@@ -80,7 +79,6 @@ module top(){
 module discC(h=wallThickness*4.){
   discOffsetX = (innerX/2.-(1.5+4*wallThickness))/2.;
   // this translation is x,z,-y in final result
-  lCorrection = 03.5;
   translate([discOffsetX,h/2.,lCorrection/2.+hookLength+hooksOffsetZ+heatPortD/2.])
     rotate([90,0,0])
       linear_extrude(height=h)
@@ -96,7 +94,7 @@ module nibs2(){
    translate([-nibsX,nibsY,nibsZ])
     sphere(r=nibsR);
  }
- module nibs(){
+module nibs(){
    nibsDeltaY = 5;
    nibs2();
    translate([0,nibsDeltaY,0])

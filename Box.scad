@@ -51,6 +51,7 @@ sphereD=wallThickness*2;
 heatSinkRFactor =  0.75;
 //heatPortD= innerX*heatSinkRFactor;
 
+lCorrection = 3.5;
 heatPortD= innerX*heatSinkRFactor - 2*hookLength;
 
 module measuredHook(){
@@ -121,7 +122,7 @@ module crissCross(){
 module gridCutter(h){
   linear_extrude(height=h)
     difference(){
-      circle(d=heatPortD);
+      circle(d=heatPortD+lCorrection);
       crissCross();
     }
   }
@@ -129,7 +130,7 @@ module circCutter(h){
   littleD=4;
   linear_extrude(height=h)
     intersection(){   
-      circle(d=heatPortD);
+      circle(d=heatPortD+lCorrection);
       translate([-heatPortD/2.,-heatPortD/2.,0])
         for (i=[0:littleD+1:heatPortD+littleD+1])
           translate([0,i,0])
@@ -140,13 +141,15 @@ module circCutter(h){
 }
 module discCutter(h){
   linear_extrude(height=h)
-      circle(d=heatPortD);
+      circle(d=heatPortD+lCorrection);
 }
 module boxWithGridAndHooks(circs){
   extrudeH = 5;
+  //lCorrection = 03.5;
+  hooksOffsetZ = (innerY-hookSpacingY-hookLength)/2.;
   difference(){  
     roundedBox();
-    translate([4.5,40,-extrudeH/2.])
+    translate([4.5,20+(lCorrection/2.+hookLength+hooksOffsetZ+heatPortD/2.),-extrudeH/2.])
       if (circs== "d")
         #discCutter(extrudeH);
       else if (circs== "c")
