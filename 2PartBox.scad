@@ -55,7 +55,7 @@ module bottom(){
     }
   }
 module topTrimmer(){
-  trimDistY = 1;
+  trimDistY = 0.5;
   trimBoxX  = 50;
   trimBoxY  = 5;
   trimBoxZ  = 20;
@@ -84,21 +84,23 @@ module discC(h=wallThickness*4.){
       linear_extrude(height=h)
         circle(d=heatPortD+lCorrection);
 }
-module nibs2(){
+module nibs2(positive){
    nibsY = 6-innerY;
    nibsX = 20.6;
    nibsZ = -2.5;
-   nibsR= 1.5;
+   nibsRMax= 1.5;
+   nibsReduction = 0.2;
+   nibsR = positive ? nibsRMax - nibsReduction : nibsRMax;
    translate([nibsX,nibsY,nibsZ])
     sphere(r=nibsR);
    translate([-nibsX,nibsY,nibsZ])
     sphere(r=nibsR);
  }
-module nibs(){
+module nibs(positive){
    nibsDeltaY = 5;
-   nibs2();
+   nibs2(positive);
    translate([0,nibsDeltaY,0])
-    nibs2();
+    nibs2(positive);
  }
 
 module doBox(part="x"){
@@ -111,7 +113,7 @@ module doBox(part="x"){
       }
     }
     color(topColor,1.0){
-      nibs();
+      nibs(true);
     }
   }
   if (part != "t") {  // do the bottom
@@ -119,7 +121,7 @@ module doBox(part="x"){
       rotate([90,0,0])    
         bottom();
         color(bottomColor,1)
-          nibs();
+          nibs(false);
     }
   }
 }
