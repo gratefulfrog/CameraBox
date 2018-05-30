@@ -54,6 +54,23 @@ module bottom(){
         import("Box Grooved 01 inverted.dxf",layer="0");
     }
   }
+module newBottom(){
+  color(bottomColor,1){
+    rotate([0,0,180])
+      translate([0,outerZ,0]){
+        difference(){
+          translate([0,-outerZ,0])
+            rotate([0,0,180])
+              bottom();
+          discC();
+        }
+        translate([0,0,hooksOffsetZ])
+          rotate([-90,0,0])
+            translate([0,-hookSupportY,0])
+              twoMeasuredHooks(false);
+      }
+    }
+}
 module topTrimmer(){
   trimDistY = 0.5;
   trimBoxX  = 50;
@@ -76,6 +93,14 @@ module top(){
           twoMeasuredHooks(false);
   }
 }
+module newTop(){
+  color(topColor,1.0){
+    linear_extrude(height=topZ,convexity=5)
+        import("Box Grooved 01 inverted.dxf",layer="base",convexity=10);  
+  }
+}
+
+
 module discC(h=wallThickness*4.){
   discOffsetX = (innerX/2.-(1.5+4*wallThickness))/2.;
   // this translation is x,z,-y in final result
@@ -103,11 +128,14 @@ module nibs(positive){
     nibs2(positive);
  }
 
-module doBox(part="x"){
+module doBox(part="x", new){
   if (part != "b") { // do the top
     rotate([90,0,0]){    
       difference(){
-        top();
+        if (new) 
+          newTop();
+        else
+          top();
         color(topColor,1)
           topTrimmer();
       }
@@ -119,7 +147,10 @@ module doBox(part="x"){
   if (part != "t") {  // do the bottom
     difference(){
       rotate([90,0,0])    
-        bottom();
+        if (new)
+          newBottom();
+        else
+          bottom();
         color(bottomColor,1)
           nibs(false);
     }
@@ -127,11 +158,11 @@ module doBox(part="x"){
 }
  
 /* The following line will generate the 2 part box parts depending on 
- * the arguments:
- * "t" : generate only the tope
+ * the arguments: (note top is the thin part, bottom is the other.
+ * "t" : generate only the top
  * "b" : generate only the bottom
  * anything else : generate both top and bottom
+ * second argument true makes the thin part of the box as the lower part
+ * false makes the thin part on top.
  */
-doBox("t");
-
-  
+doBox("b",true);
