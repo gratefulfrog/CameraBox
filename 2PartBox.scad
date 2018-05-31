@@ -54,7 +54,8 @@ module bottom(){
         import("Box Grooved 01 inverted.dxf",layer="0");
     }
   }
-module newBottom(){
+/*
+  module newBottom(){
   color(bottomColor,1){
     rotate([0,0,180])
       translate([0,outerZ,0]){
@@ -71,6 +72,22 @@ module newBottom(){
       }
     }
 }
+*/
+module newBottom(){
+  color(bottomColor,1){
+    rotate([0,0,180])
+      translate([0,outerZ,0]){
+          translate([0,-outerZ,0])
+            rotate([0,0,180])
+              bottom();
+        translate([0,0,hooksOffsetZ])
+          rotate([-90,0,0])
+            translate([0,-hookSupportY,0])
+              twoMeasuredHooks(false);
+      }
+    }
+}
+  
 module topTrimmer(){
   trimDistY = 0.5;
   trimBoxX  = 50;
@@ -95,8 +112,11 @@ module top(){
 }
 module newTop(){
   color(topColor,1.0){
-    linear_extrude(height=topZ,convexity=5)
-        import("Box Grooved 01 inverted.dxf",layer="base",convexity=10);  
+    difference(){
+      linear_extrude(height=topZ,convexity=5)
+        import("Box Grooved 01 inverted.dxf",layer="base",convexity=10);
+      discC();
+    }
   }
 }
 
@@ -162,7 +182,7 @@ module doBox(part="x", new){
  * "t" : generate only the top
  * "b" : generate only the bottom
  * anything else : generate both top and bottom
- * second argument true makes the thin part of the box as the lower part
- * false makes the thin part on top.
+ * second argument true makes the hooks on the bottom
+ * false makes the hooks on the top.
  */
 doBox("b",true);
