@@ -13,10 +13,13 @@
  * Box.scad.
  */
 
-/* unused exact camera dimensions, excluding the lens
-width : 35mm
-length: 60mm
-height: 18mm
+/* unused exact camera dimensions, including the lens, from 
+ * https://www.mobius-actioncam.com/features/
+width : 35.052mm
+length: 60.452mm
+height: 17.78 mm
+heat port diameter = 21.73
+
 */
 
 include <Box.scad>
@@ -54,25 +57,7 @@ module bottom(){
         import("Box Grooved 01 inverted.dxf",layer="0");
     }
   }
-/*
-  module newBottom(){
-  color(bottomColor,1){
-    rotate([0,0,180])
-      translate([0,outerZ,0]){
-        difference(){
-          translate([0,-outerZ,0])
-            rotate([0,0,180])
-              bottom();
-          discC();
-        }
-        translate([0,0,hooksOffsetZ])
-          rotate([-90,0,0])
-            translate([0,-hookSupportY,0])
-              twoMeasuredHooks(false);
-      }
-    }
-}
-*/
+
 module newBottom(){
   color(bottomColor,1){
     rotate([0,0,180])
@@ -185,4 +170,25 @@ module doBox(part="x", new){
  * second argument true makes the hooks on the bottom
  * false makes the hooks on the top.
  */
-doBox("b",true);
+doBox("x",false);
+//top();
+/*
+ translate([0,0,hooksOffsetZ])
+      rotate([-90,0,0])
+        translate([0,-hookSupportY,0])
+twoMeasuredHooks(false);
+//discC();
+
+h=wallThickness*4.;
+  discOffsetX = (innerX/2.-(1.5+4*wallThickness))/2.;
+  // this translation is x,z,-y in final result
+translate([discOffsetX,h/2.,lCorrection/2.+hookLength+hooksOffsetZ+heatPortD/2.])
+    rotate([90,0,0])
+      linear_extrude(height=wallThickness*4.)
+        circle(d=heatPortD+lCorrection);
+*/
+discOffsetX = (innerX/2.-(1.5+4*wallThickness))/2.;
+echo("heat skink x translation : ", discOffsetX); //4.5mm
+echo("heat sink from end translation : ",lCorrection/2.+hookLength+hooksOffsetZ+heatPortD/2.);  // 19.245
+echo("heat port diameter : ",heatPortD+lCorrection); //21.73mm heat port diameter
+echo("Hook end to camera end : ",hooksOffsetZ);  //3.62mm from back hook back to back of camera

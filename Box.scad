@@ -12,14 +12,6 @@
  * commented out if you intend to use 2PartBox.scad
  */
 
-
-
-/* unused exact camera dimensions, excluding the lens
-width : 35mm
-length: 60mm
-height: 18mm
-*/
-
 $fn=100;
 
 wallThickness = 2;
@@ -165,3 +157,5 @@ module boxWithGridAndHooks(circs){
 // "d" -> get a big disc cut
 // anything else -> get a rectangular grid cut
 //boxWithGridAndHooks("d");
+
+//measuredHook();
