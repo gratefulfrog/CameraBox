@@ -30,6 +30,8 @@ rackWidth = 8;
 
 wallThickness = 2;
 
+hookSupportZOffSet = 15.4;
+
 module camera(){
   color(cameraColor,1){
     cube([cameraX,cameraY,cameraZ],center=true);
@@ -50,20 +52,34 @@ module cameraOffset(){
   }
 }
 
-module enclosingSaucer(){
+module enclosingSaucer(inverted){
   resizeFactor = 1.16;
   difference(){
-    resize(newsize=[resizeFactor*55.5+wallThickness,
-                      resizeFactor*46.28*2+wallThickness,
-                      resizeFactor*24.96+wallThickness])
-        sphere(d=enclosingSphereDiamter);
-    
+    hull(){
+      resize(newsize=[resizeFactor*55.5+wallThickness,
+                        resizeFactor*46.28*2+wallThickness,
+                        resizeFactor*24.96+wallThickness])
+          sphere(d=enclosingSphereDiamter);
+      if (inverted){
+        translate([0,
+                   0,
+                   -hookSupportZOffSet+wallThickness])
+        hookSupport(wallThickness);    
+      }
+      else{
+        translate([0,
+                     0,
+                     hookSupportZOffSet])
+        hookSupport(wallThickness);    
+      }
+    }
     resize(newsize=[resizeFactor*55.5,
                     resizeFactor*46.28*2,
                     resizeFactor*24.96])
       sphere(d=enclosingSphereDiamter);
   }
 }
+
 module cutterSaucer(){
   resizeFactor = 1.16;
   difference(){
@@ -114,14 +130,14 @@ module allRacks(){
     cutterSaucer();
   }
 }
-module shell(){
+module shell(inverted){
   difference(){
     union(){
       difference(){
         allRacks();
         cameraOffset();
       }
-     enclosingSaucer();
+     enclosingSaucer(inverted);
     }
   noseCutter();
   }
@@ -144,18 +160,18 @@ module endHoleCutter(){
 module pod(inverted){
   difference(){
     union(){
-      shell();
+      shell(inverted);
       if (inverted){
         translate([0,
                    0,
-                   -15.4])
+                   -hookSupportZOffSet])
           rotate([0,180,0])
             twoMeasuredHooks(wallThickness,false);
       }
       else{
         translate([0,
                    0,
-                   15.4])
+                   hookSupportZOffSet])
             twoMeasuredHooks(wallThickness,false);
       }
     }
@@ -169,5 +185,5 @@ module pod(inverted){
 
 //camera();
 //cameraOffset();
-pod(false);  // true means inverted!
+pod(true);  // true means inverted!!
 

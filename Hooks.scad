@@ -23,6 +23,9 @@ _2ndVertical     = 0.78;
 _3rdVertical     = _2ndVertical+0.01;
 TopWidth         = 3.18;
 
+hookSupportX = BottomWidth  + 2*bottomWingWidth;
+hookSupportY = hookSpacingY + hookLength;
+
 module measuredHook(wallThickness){
   epsilon= wallThickness;  // to ensure ancoring in the base!
   points = [[0,-epsilon],
@@ -41,20 +44,30 @@ module measuredHook(wallThickness){
       polygon(points,convexity = 1);
 }
 module twoMeasuredHooks(wallThickness,withSupport){
-  hookSupportX = BottomWidth  + 2*bottomWingWidth;
-  hookSupportY = hookSpacingY + hookLength;
   hookSupportZ = wallThickness;
   translate([0,
-             -hookSupportY/2.,0]){
+             -hookSupportY/2.,
+             0]){
       measuredHook(wallThickness);
       translate([0,hookSpacingY,0])
         measuredHook(wallThickness);
+             }
       if (withSupport){
-        translate([-hookSupportX/2.,0,-hookSupportZ])
-          cube([hookSupportX,hookSupportY,hookSupportZ]);
-      }
+        hookSupport(wallThickness);
+        //translate([-hookSupportX/2.,0,-hookSupportZ])
+          //cube([hookSupportX,hookSupportY,hookSupportZ]);
+      
     }
   }
+  
+
+module hookSupport(wallThickness){
+  hookSupportZ = wallThickness;
+  translate([-hookSupportX/2.,-hookSupportY/2.,-hookSupportZ])
+          cube([hookSupportX,hookSupportY,hookSupportZ]);
+}
 
 //measuredHook();
 //twoMeasuredHooks(2, true);
+//hookSupport(2);
+
