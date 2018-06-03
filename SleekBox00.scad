@@ -51,7 +51,6 @@ module cameraOffset(){
     cube([cameraX+cameraOffset,cameraY+cameraOffset,cameraZ+cameraOffset],center=true);  
   }
 }
-
 module enclosingSaucer(inverted){
   resizeFactor = 1.16;
   difference(){
@@ -79,7 +78,6 @@ module enclosingSaucer(inverted){
       sphere(d=enclosingSphereDiamter);
   }
 }
-
 module cutterSaucer(){
   resizeFactor = 1.16;
   difference(){
@@ -94,7 +92,6 @@ module cutterSaucer(){
         sphere(d=enclosingSphereDiamter);
   }
 }
-
 module sideRack(starboard){
   if (starboard){
     track(-1);
@@ -103,7 +100,6 @@ module sideRack(starboard){
     track(+1);
   }
 }
-
 module track(sign){
   translate([sign*(cameraX+2*cameraOffset)/2.,
               0,
@@ -133,16 +129,12 @@ module allRacks(){
 module shell(inverted){
   difference(){
     union(){
-      difference(){
-        allRacks();
-        cameraOffset();
-      }
+     allRacks();
      enclosingSaucer(inverted);
     }
   noseCutter();
   }
-}
-  
+} 
 module noseCutter(){
   cutX=10*cameraX;
   cutY=10*cameraY;
@@ -182,8 +174,13 @@ module pod(inverted){
       cylinder(d=heatSinkDiameter,h=20);
   }
 }
+module box(inverted){
+  difference(){
+    pod(inverted);  
+    cameraOffset();
+  }
+}
 
 //camera();
 //cameraOffset();
-pod(true);  // true means inverted!!
-
+box(true);  // true means inverted!!
