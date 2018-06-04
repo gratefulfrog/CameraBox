@@ -28,32 +28,43 @@ heatSinkCenterOffSetX = 4.5;
 heatSinkEndOffsetY    = 19.25;
 
 rackWidth = 8;
-
-wallThickness = 5;
-
+wallThickness = 2;
 hookSupportZOffSet = 15.4;
 
-module camera(){
-  color(cameraColor,1){
-    cube([cameraX,cameraY,cameraZ],center=true);
+module camera(collor=true){
+  if (collor){
+    color(cameraColor,1){
+      cube([cameraX,cameraY,cameraZ],center=true);
+    }
+    color("Black",1){
+      translate([cameraX/4.,-cameraY/2.,0])
+        rotate([90,0,0])
+          cylinder(d=cameraX/2.,h=cameraOffset);
+    }
+    color("Silver",1){
+      coolingDisc();
+    }
   }
-  color("Black",1){
+  else{
+    /*
+    cube([cameraX,cameraY,cameraZ],center=true);
     translate([cameraX/4.,-cameraY/2.,0])
       rotate([90,0,0])
         cylinder(d=cameraX/2.,h=cameraOffset);
+    */
+    coolingDisc();
   }
-  color("Silver",1){
-    translate([heatSinkCenterOffSetX,cameraY/2.-heatSinkEndOffsetY,cameraZ/2.])
-      cylinder(d=heatSinkDiameter,h=cameraOffset);
-  }
+}
+module coolingDisc(ht=cameraOffset){
+  translate([heatSinkCenterOffSetX,cameraY/2.-heatSinkEndOffsetY,cameraZ/2.])
+    cylinder(d=heatSinkDiameter,h=ht);
 }
 module cameraOffset(){
   color(cameraOffsetColor,1){
     cube([cameraX+cameraOffset,cameraY+cameraOffset,cameraZ+cameraOffset],center=true);  
   }
 }
-module enclosingSaucer(inverted){
-  resizeFactor = 1.16;
+module enclosingSaucer(inverted, resizeFactor = 1.16){
   difference(){
     hull(){
       resize(newsize=[resizeFactor*55.5+wallThickness,
@@ -79,7 +90,14 @@ module enclosingSaucer(inverted){
       sphere(d=enclosingSphereDiamter);
   }
 }
-module cutterSaucer(){
+module ductCuttingSaucer(inverted,resize){
+  difference(){
+    enclosingSaucer(inverted,resize);
+    enclosingSaucer(inverted);
+  }
+}
+
+module cutterSaucer(innerdiviser=2){
   resizeFactor = 1.16;
   difference(){
     resize(newsize=[resizeFactor*55.5+wallThickness+50,
@@ -87,9 +105,9 @@ module cutterSaucer(){
                     resizeFactor*24.96+wallThickness+50])
         sphere(d=enclosingSphereDiamter);
     
-    resize(newsize=[resizeFactor*55.5+(wallThickness/2.),
-                    resizeFactor*46.28*2+(wallThickness/2.),
-                    resizeFactor*24.96+(wallThickness/2.)])
+    resize(newsize=[resizeFactor*55.5+(wallThickness/innerdiviser),
+                    resizeFactor*46.28*2+(wallThickness/innerdiviser),
+                    resizeFactor*24.96+(wallThickness/innerdiviser)])
         sphere(d=enclosingSphereDiamter);
   }
 }
@@ -132,8 +150,12 @@ module shell(inverted){
     union(){
      allRacks();
      enclosingSaucer(inverted);
+     //unCutDuct();
     }
-  noseCutter();
+    union(){
+      noseCutter();
+      //ductCuttingSaucer(inverted,2);
+    }
   }
 } 
 module noseCutter(){
@@ -169,10 +191,6 @@ module pod(inverted){
       }
     }
     endHoleCutter();
-    //translate([heatSinkCenterOffSetX,
-      //     cameraY/2.-heatSinkEndOffsetY,
-        //   cameraZ/2.])
-      //cylinder(d=heatSinkDiameter,h=20);
   }
 }
 module box(inverted){
@@ -184,24 +202,91 @@ module box(inverted){
 
 //camera();
 //cameraOffset();
-//difference(){
-%  box(false);  // true means inverted!!
- // rotate([0,3,0])
-  //translate([heatSinkCenterOffSetX,5+7,hookSupportZOffSet-4])
-    //rotate([0,0,-90])
-      //nacamSlope(5,heatSinkDiameter,20,10);
-//}
-difference(){
-  rotate([0,1.5,0])
-    translate([heatSinkCenterOffSetX-1,5+7,hookSupportZOffSet-3.65])
-      rotate([0,0,-90])
-        nacamDuct(5,heatSinkDiameter,1.3,0.5);
-  //cutterSaucer();
+
+ductRotation = 3.92;
+ductSlope = 3;
+ductHeight = 7;
+
+ductWidth = heatSinkDiameter;
+ductWalls = 1;
+ductExtension = 22;
+slopeExtenstion = 250;
+slopeWidth = ductWidth - 2*ductWalls;
+slopeHeight = 5;
+ductZTranslate = hookSupportZOffSet-3.;
+
+module test(){
+  difference(){
+    union(){
+      difference(){
+          box(true);  // true means inverted!!
+          difference(){
+            rotate([0,ductRotation,0])
+              translate([heatSinkCenterOffSetX-1,-slopeHeight,ductZTranslate])
+                rotate([0,0,-90])
+                  nacamSlopeCut(ductSlope,
+                             slopeWidth,
+                             slopeHeight,
+                             slopeExtenstion,
+                             ductWalls);
+          }
+        }    
+      rotate([0,ductRotation,0])
+        translate([heatSinkCenterOffSetX-1,-slopeHeight,ductZTranslate])
+          rotate([0,0,-90])
+            closedDuct(ductSlope,ductWidth,ductHeight,ductExtension,ductWalls);
+    }
+  ductCuttingSaucer(true,2);    
+  }
 }
-camera();
-cameraOffset();
-/*translate([heatSinkCenterOffSetX,
-           cameraY/2.-heatSinkEndOffsetY,
-           cameraZ/2.])
-      cylinder(d=heatSinkDiameter,h=20);
-*/
+
+module podWithDuct(inverted){
+ 
+  difference(){ 
+    union(){
+      enclosingSaucer(inverted);
+      unCutDuct();
+      }
+    ductCuttingSaucer(inverted,2); 
+  }
+}
+module boxWithDuct(inverted){
+  podWithDuct(inverted);
+  if (inverted){
+    translate([0,
+               0,
+               -hookSupportZOffSet])
+      rotate([0,180,0])
+        twoMeasuredHooks(wallThickness,false);
+  }
+  else{
+    translate([0,
+               0,
+               hookSupportZOffSet])
+        twoMeasuredHooks(wallThickness,false);
+  }
+}
+module unCutDuct(){
+  difference(){
+      difference(){
+        rotate([0,ductRotation,0])
+          translate([heatSinkCenterOffSetX-1,-slopeHeight,ductZTranslate])
+            rotate([0,0,-90])
+              nacamSlopeCut(ductSlope,
+                         slopeWidth,
+                         slopeHeight,
+                         slopeExtenstion,
+                         ductWalls);
+      }
+    }    
+  rotate([0,ductRotation,0])
+    translate([heatSinkCenterOffSetX-1,-slopeHeight,ductZTranslate])
+      rotate([0,0,-90])
+        closedDuct(ductSlope,ductWidth,ductHeight,ductExtension,ductWalls);
+}
+
+//boxWithDuct(false);
+//podWithDuct(true);
+//%shell(true);
+//unCutDuct();
+test();
