@@ -26,6 +26,41 @@ TopWidth         = 3.18;
 hookSupportX = BottomWidth  + 2*bottomWingWidth;
 hookSupportY = hookSpacingY + hookLength;
 
+slotEpsilon=0.1;
+BottomWidthS      = 1.58 + slotEpsilon;
+FirstVerticalS    = 2.39 - slotEpsilon;
+bottomWingWidthS  = 1.58 + slotEpsilon;
+_2ndVerticalS     = 0.78 + slotEpsilon;
+_3rdVerticalS     = _2ndVertical+0.01 + slotEpsilon;
+TopWidthS         = 3.18 + slotEpsilon;
+
+module measuredBlock(){
+  epsilon= 1;
+  blockX=2*(BottomWidth/2.+bottomWingWidth)+3*slotEpsilon;
+  blockY = hookLength+2*epsilon;
+  blockZ = FirstVertical + _2ndVertical + _3rdVertical+slotEpsilon;
+  translate([-blockX/2.,-1.5*epsilon,-epsilon])
+    cube([blockX,blockY,blockZ+epsilon]);
+}
+module measuredHookCutter(wallThickness){
+  epsilon= wallThickness;  // to ensure ancoring in the base!
+  points = [[0,-epsilon],
+            [BottomWidthS,-epsilon],
+            [BottomWidthS,FirstVerticalS],
+            [BottomWidthS+bottomWingWidthS,FirstVerticalS],
+            [BottomWidthS+bottomWingWidthS,FirstVerticalS+_2ndVerticalS],
+            [BottomWidthS+bottomWingWidthS-_3rdVerticalS,FirstVerticalS+_2ndVerticalS+_3rdVerticalS],
+            [BottomWidthS+bottomWingWidthS-_3rdVerticalS-TopWidthS,FirstVerticalS+_2ndVerticalS+_3rdVerticalS],
+            [-BottomWidthS,FirstVerticalS+_2ndVerticalS],
+            [-BottomWidthS,FirstVerticalS],
+            [0,FirstVerticalS]];
+  translate([-BottomWidthS/2.0,hookLength,0])
+  rotate([90,0,0])
+    linear_extrude(height = hookLength)
+      polygon(points,convexity = 1);
+}
+
+
 module measuredHook(wallThickness){
   epsilon= wallThickness;  // to ensure ancoring in the base!
   points = [[0,-epsilon],
@@ -48,17 +83,14 @@ module twoMeasuredHooks(wallThickness,withSupport){
   translate([0,
              -hookSupportY/2.,
              0]){
+    measuredHook(wallThickness);
+    translate([0,hookSpacingY,0])
       measuredHook(wallThickness);
-      translate([0,hookSpacingY,0])
-        measuredHook(wallThickness);
-             }
-      if (withSupport){
-        hookSupport(wallThickness);
-        //translate([-hookSupportX/2.,0,-hookSupportZ])
-          //cube([hookSupportX,hookSupportY,hookSupportZ]);
-      
-    }
   }
+  if (withSupport){
+    hookSupport(wallThickness);
+  }
+}
   
 
 module hookSupport(wallThickness){
@@ -67,7 +99,55 @@ module hookSupport(wallThickness){
           cube([hookSupportX,hookSupportY,hookSupportZ]);
 }
 
-//measuredHook();
-//twoMeasuredHooks(2, true);
-//hookSupport(2);
+pylonX = 2*hookSupportX;
+pylonY = 64+pylonX;
+pylonZ = 30;
 
+module plyon0(){
+  hull(){
+    separation= pylonY - pylonX;
+    translate([0,separation/2.,0])
+      cylinder(d=pylonX,h=pylonZ);
+    translate([0,-separation/2.,0])
+      cylinder(d=pylonX,h=pylonZ);
+  }
+}
+module pylon1(){
+  difference(){
+    union(){
+      plyon0();
+      translate([0,0,pylonZ])
+        twoMeasuredHooks(2, false);
+    }
+    #translate([0,hookLength/2,0])
+      plyonCutters();
+  }
+}
+
+module plyonCutters(){
+  translate([0,-hookLength,0])
+    twoMeasuredBlocks(2, false);
+  twoMeasuredHookCutters();
+}
+
+module twoMeasuredBlocks(){
+  translate([0,
+             -hookSupportY/2.,
+             0]){
+    measuredBlock();
+    translate([0,hookSpacingY,0])
+      measuredBlock();
+  }
+}
+module twoMeasuredHookCutters(){
+  translate([0,
+             -hookSupportY/2.,
+             0]){
+    measuredHookCutter(2);
+    translate([0,hookSpacingY,0])
+      measuredHookCutter(2);
+  }
+}
+pylon1();
+//translate([0,hookLength,0])
+//  plyonCutters();
