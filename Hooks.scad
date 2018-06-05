@@ -119,7 +119,7 @@ module pylon1(){
       translate([0,0,pylonZ])
         twoMeasuredHooks(2, false);
     }
-    #translate([0,hookLength/2,0])
+    #translate([0,0/**hookLength/2*/,0])
       plyonCutters();
   }
 }
